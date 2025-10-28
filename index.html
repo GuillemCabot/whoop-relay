@@ -7,42 +7,49 @@
          margin: 24px; line-height: 1.5; }
   .btn { display:inline-block; padding:12px 16px; border-radius:10px; 
          border:1px solid #ccc; text-decoration:none; }
+  #fallback { display:none; margin-top:12px; }
+  code{background:#f6f8fa;padding:2px 4px;border-radius:4px}
 </style>
 <script>
 (function(){
-  // ⬇️ POSA aquí la TEVA URL d’Apps Script amb ?route=callback
+  // ⬇️ LA TEVA URL d'Apps Script amb ?route=callback
   var GAS_BASE = "https://script.google.com/macros/s/AKfycbwvG59WSYCHkrhNh4tk7PuC80X0rt9GQy9iwrWIU7VCRSshCG8VzDcJ-EvdniZoyD2N/exec?route=callback";
-  var qs   = window.location.search;             // ?code=...&state=...
+
+  var qs   = window.location.search;             // repassa code/state
   var hash = window.location.hash || "";
   var target = GAS_BASE + (qs ? (GAS_BASE.includes('?') ? '&' : '?') + qs.slice(1) : '') + hash;
 
-  // ho intentem automàticament (si l'iframe ho permet):
+  // 1) intent automàtic (si el sandbox ho permet)
   try { setTimeout(function(){ window.top.location.href = target; }, 0); } catch(e){}
 
   // exposem per al botó
-  window.__goTop = function(){
-    try { window.top.location.href = target; } catch(_) { window.location.href = target; }
+  window.__go = function(){
+    try {
+      // 2) intent de sortir a top
+      window.top.location.href = target;
+    } catch (e) {
+      // 3) pla B: obre en pestanya nova
+      var w = window.open(target, "_blank", "noopener,noreferrer");
+      if (!w) {
+        // 4) si el navegador bloqueja el popup, mostra enllaç directe
+        var fb = document.getElementById('fallback');
+        var a  = document.getElementById('direct');
+        a.href = target; fb.style.display = 'block';
+      }
+    }
   };
 
-  // escriu també un <meta refresh> com a darrera opció
-  document.write('<meta http-equiv="refresh" content="3;url='+ target.replace(/"/g,'%22') +'">');
+  // meta refresh com a última opció (no sempre funciona amb sandbox)
+  document.write('<meta http-equiv="refresh" content="4;url='+ target.replace(/"/g,'%22') +'">');
 })();
 </script>
 
 <h2>Finalitza la connexió amb WHOOP</h2>
-<p>Si no es redirigeix automàticament, prem el botó per continuar.</p>
-<p><a class="btn" href="javascript:void 0" onclick="__goTop()">Continuar</a></p>
-<p style="font-size:12px;color:#666">Si cal, <a id="direct" target="_top">obre directament</a>.</p>
-<script>
-  // posa l'enllaç directe amb target="_top"
-  (function(){
-    var a = document.getElementById('direct');
-    if (a && typeof __goTop === 'function') {
-      // reconstruïm la mateixa 'target' que al script superior
-      var GAS_BASE = "https://script.google.com/macros/s/AKfycbwYvEUOz6qNLFI75QSmGKrdOHRSP3u2BHAKuZutu6Wafqs1utrqG5--mlgHztyC2VQT/exec?route=callback";
-      var qs   = window.location.search, hash = window.location.hash || "";
-      var target = GAS_BASE + (qs ? (GAS_BASE.includes('?') ? '&' : '?') + qs.slice(1) : '') + hash;
-      a.href = target;
-    }
-  })();
-</script>
+<p>Si no es redirigeix automàticament, prem el botó:</p>
+<p><a class="btn" href="javascript:void 0" onclick="__go()">Continuar</a></p>
+
+<div id="fallback">
+  <p>Si el navegador ha bloquejat la finestra emergent, obre aquest enllaç:</p>
+  <p><a id="direct" target="_blank" rel="noopener">Obrir en una pestanya nova</a></p>
+  <p style="font-size:12px;color:#666">Si encara no s’obre, habilita “Permetre finestres emergents” per <code>guillemcabot.github.io</code> i torna-ho a provar.</p>
+</div>
