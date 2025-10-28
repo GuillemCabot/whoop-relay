@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><title>WHOOP Relay</title>
+<script>
+(function(){
+  // SUBSTITUEIX aquesta URL per la teva Apps Script Web App (acaba en /exec?route=callback)
+  var GAS_BASE = "https://script.google.com/a/macros/coubber.com/s/AKfycbxZPTe91CnWDNQSBD8Ooa898uQb8mlu6fREMoF937jZFN-czzTIvcO6oK3cGM-72rYe/exec";
+  // Reenvia code/state al teu Apps Script i força sortir de l'iframe
+  var qs = window.location.search, hash = window.location.hash || "";
+  var target = GAS_BASE + (qs ? (GAS_BASE.includes("?")?"&":"?")+qs.slice(1) : "") + hash;
+  try { window.top.location = target; } catch(e) { window.location = target; }
+})();
+</script>
+<body>Redirecting…</body>
