@@ -1,18 +1,48 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>WHOOP Relay</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WHOOP → Coubber</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
+         margin: 24px; line-height: 1.5; }
+  .btn { display:inline-block; padding:12px 16px; border-radius:10px; 
+         border:1px solid #ccc; text-decoration:none; }
+</style>
 <script>
 (function(){
-  // 👉 Substitueix aquesta URL per la teva Apps Script Web App (acaba en /exec?route=callback)
+  // ⬇️ POSA aquí la TEVA URL d’Apps Script amb ?route=callback
   var GAS_BASE = "https://script.google.com/macros/s/AKfycbwvG59WSYCHkrhNh4tk7PuC80X0rt9GQy9iwrWIU7VCRSshCG8VzDcJ-EvdniZoyD2N/exec?route=callback";
-  
-  // Redirigeix cap al GAS amb els paràmetres del codi WHOOP
-  var qs = window.location.search;
+  var qs   = window.location.search;             // ?code=...&state=...
   var hash = window.location.hash || "";
-  var target = GAS_BASE + (qs ? (GAS_BASE.includes("?") ? "&" : "?") + qs.slice(1) : "") + hash;
+  var target = GAS_BASE + (qs ? (GAS_BASE.includes('?') ? '&' : '?') + qs.slice(1) : '') + hash;
 
-  try { window.top.location = target; }
-  catch(e) { window.location = target; }
+  // ho intentem automàticament (si l'iframe ho permet):
+  try { setTimeout(function(){ window.top.location.href = target; }, 0); } catch(e){}
+
+  // exposem per al botó
+  window.__goTop = function(){
+    try { window.top.location.href = target; } catch(_) { window.location.href = target; }
+  };
+
+  // escriu també un <meta refresh> com a darrera opció
+  document.write('<meta http-equiv="refresh" content="3;url='+ target.replace(/"/g,'%22') +'">');
 })();
 </script>
-<body>Redirecting…</body>
+
+<h2>Finalitza la connexió amb WHOOP</h2>
+<p>Si no es redirigeix automàticament, prem el botó per continuar.</p>
+<p><a class="btn" href="javascript:void 0" onclick="__goTop()">Continuar</a></p>
+<p style="font-size:12px;color:#666">Si cal, <a id="direct" target="_top">obre directament</a>.</p>
+<script>
+  // posa l'enllaç directe amb target="_top"
+  (function(){
+    var a = document.getElementById('direct');
+    if (a && typeof __goTop === 'function') {
+      // reconstruïm la mateixa 'target' que al script superior
+      var GAS_BASE = "https://script.google.com/macros/s/AKfycbwYvEUOz6qNLFI75QSmGKrdOHRSP3u2BHAKuZutu6Wafqs1utrqG5--mlgHztyC2VQT/exec?route=callback";
+      var qs   = window.location.search, hash = window.location.hash || "";
+      var target = GAS_BASE + (qs ? (GAS_BASE.includes('?') ? '&' : '?') + qs.slice(1) : '') + hash;
+      a.href = target;
+    }
+  })();
+</script>
